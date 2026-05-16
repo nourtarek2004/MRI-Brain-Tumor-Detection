@@ -24,7 +24,7 @@ export default function PatientDashboard() {
 
         const summaryRes = await api.get("/api/patient/dashboard/summary");
         setSummary(summaryRes.data.data);
-
+//
         const reportsRes = await api.get("/api/patient/reports");
         setReports(reportsRes.data.data || []);
       } catch (err) {
