@@ -38,7 +38,7 @@ export default function PatientDetails() {
       const token = localStorage.getItem("token");
 
       const res = await axios.get(
-        `https://mri-production-9d58.up.railway.app/api/doctor/patients/${id}`,
+        `https://mri-production-7e28.up.railway.app/api/doctor/patients/${id}`,
         {
           headers: {
             Authorization: `Bearer ${token}`,
@@ -100,7 +100,7 @@ export default function PatientDetails() {
       const token = localStorage.getItem("token");
 
       await axios.post(
-        "https://mri-production-9d58.up.railway.app/api/doctor/notes",
+        "https://mri-production-7e28.up.railway.app/api/doctor/notes",
         {
           note: note,
         },

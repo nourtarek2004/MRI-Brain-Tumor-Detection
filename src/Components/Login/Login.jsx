@@ -19,7 +19,7 @@ export default function Login() {
   async function handleLogin(values) {
     try {
       const response = await axios.post(
-        "https://mri-production-9d58.up.railway.app/users/login",
+        "https://mri-production-7e28.up.railway.app/users/login",
         values,
         { headers: { "Content-Type": "application/json" } }
       );

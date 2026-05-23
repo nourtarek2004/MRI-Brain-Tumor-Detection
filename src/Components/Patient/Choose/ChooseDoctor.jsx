@@ -15,7 +15,7 @@ export default function ChooseDoctor() {
     async function getDoctors() {
       try {
         const res = await axios.get(
-          "https://mri-production-9d58.up.railway.app/api/patient/doctors",
+          "https://mri-production-7e28.up.railway.app/api/patient/doctors",
           {
             headers: {
               Authorization: `Bearer ${localStorage.getItem("token")}`,
@@ -45,7 +45,7 @@ export default function ChooseDoctor() {
   async function handleFollow(id, isFollowing) {
     try {
       await axios.post(
-        "https://mri-production-9d58.up.railway.app/api/patient/assigndoctor",
+        "https://mri-production-7e28.up.railway.app/api/patient/assigndoctor",
         { doctorId: id },
         {
           headers: {

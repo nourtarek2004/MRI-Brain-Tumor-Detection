@@ -22,7 +22,7 @@ export default function DoctorDashboard() {
         setLoading(true);
 
         const res = await axios.get(
-          "https://mri-production-9d58.up.railway.app/api/doctor/dashboard",
+          "https://mri-production-7e28.up.railway.app/api/doctor/dashboard",
           {
             headers: {
               Authorization: `Bearer ${token}`,
@@ -68,7 +68,7 @@ export default function DoctorDashboard() {
 
     try {
       await axios.post(
-        "https://mri-production-9d58.up.railway.app/api/doctor/notes",
+        "https://mri-production-7e28.up.railway.app/api/doctor/notes",
         { note },
         {
           headers: {

@@ -13,7 +13,7 @@ export default function ForgetPassword() {
   async function handleForget(values) {
     try {
       const response = await axios.post(
-        "https://mri-backend-api-production-4dd1.up.railway.app/users/forget-password",
+        "https://mri-production-7e28.up.railway.app/users/forget-password",
         values,
         { headers: { "Content-Type": "application/json" } }
       ); 

@@ -17,7 +17,7 @@ export default function ResetPassword() {
   async function handleReset(values) {
     try {
       const response = await axios.post(
-        `https://mri-backend-api-production-4dd1.up.railway.app/users/reset-password/${token}`,
+        `https://mri-production-7e28.up.railway.app/users/reset-password/${token}`,
         values,
         { headers: { "Content-Type": "application/json" } }
       );

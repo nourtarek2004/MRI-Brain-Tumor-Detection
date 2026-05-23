@@ -35,7 +35,7 @@ export default function DoctorRecommendation() {
   async function fetchRecommendations() {
     try {
       const res = await axios.get(
-        "https://mri-production-9d58.up.railway.app/api/doctor/recommendations",
+        "https://mri-production-7e28.up.railway.app/api/doctor/recommendations",
         {
           headers: {
             Authorization: `Bearer ${token}`,
@@ -55,7 +55,7 @@ export default function DoctorRecommendation() {
   async function fetchPatients() {
     try {
       const res = await axios.get(
-        "https://mri-production-9d58.up.railway.app/api/doctor/patients",
+        "https://mri-production-7e28.up.railway.app/api/doctor/patients",
         {
           headers: {
             Authorization: `Bearer ${token}`,
@@ -87,7 +87,7 @@ export default function DoctorRecommendation() {
 
     try {
       await axios.post(
-        `https://mri-production-9d58.up.railway.app/api/doctor/patients/${patientId}/recommendation`,
+        `https://mri-production-7e28.up.railway.app/api/doctor/patients/${patientId}/recommendation`,
         {
           note: text,
         },
@@ -114,7 +114,7 @@ export default function DoctorRecommendation() {
   async function updateStatus(id, status) {
     try {
       await axios.put(
-        `https://mri-production-9d58.up.railway.app/api/doctor/recommendations/${id}`,
+        `https://mri-production-7e28.up.railway.app/api/doctor/recommendations/${id}`,
         { status },
         {
           headers: {

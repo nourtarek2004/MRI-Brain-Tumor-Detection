@@ -18,7 +18,7 @@ export default function Signup() {
   async function handleRegister(values) {
   try {
     const response = await axios.post(
-      "https://mri-production-9d58.up.railway.app/users/signup",
+      "https://mri-production-7e28.up.railway.app/users/signup",
       values,
       { headers: { "Content-Type": "application/json" } }
     );

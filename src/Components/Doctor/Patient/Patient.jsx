@@ -25,7 +25,7 @@ export default function Patient() {
         setLoading(true);
 
         const res = await axios.get(
-          "https://mri-production-9d58.up.railway.app/api/doctor/patients",
+          "https://mri-production-7e28.up.railway.app/api/doctor/patients",
           {
             headers: {
               Authorization: `Bearer ${token}`,

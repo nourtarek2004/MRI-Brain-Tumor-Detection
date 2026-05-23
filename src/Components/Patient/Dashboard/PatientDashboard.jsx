@@ -43,8 +43,18 @@ export default function PatientDashboard() {
 
   // ================= MONTHLY CHART =================
   const months = [
-    "Jan","Feb","Mar","Apr","May","Jun",
-    "Jul","Aug","Sep","Oct","Nov","Dec"
+    "Jan",
+    "Feb",
+    "Mar",
+    "Apr",
+    "May",
+    "Jun",
+    "Jul",
+    "Aug",
+    "Sep",
+    "Oct",
+    "Nov",
+    "Dec",
   ];
 
   const chartData = months.map((month, index) => {
@@ -61,56 +71,63 @@ export default function PatientDashboard() {
 
   return (
     <div className="flex min-h-screen bg-[#F5F7FB]">
-
       {/* SIDEBAR */}
       <div className="hidden md:flex w-[240px] bg-white border-r p-4 flex-col h-screen sticky top-0">
-
         <div>
           <div className="mb-8 flex justify-center">
             <img src={logo} alt="logo" className="w-28" />
           </div>
 
           <ul className="space-y-3 text-sm">
-
             <li>
-              <Link to="/dashboard-patient" className={linkClass("/dashboard-patient")}>
+              <Link
+                to="/dashboard-patient"
+                className={linkClass("/dashboard-patient")}
+              >
                 <FaChartBar /> Dashboard
               </Link>
             </li>
 
             <li>
-              <Link to="/scan-patient" className={linkClass("/scan-patient")}>
+              <Link
+                to="/scan-patient"
+                className={linkClass("/scan-patient")}
+              >
                 <FaUpload /> Upload Scan
               </Link>
             </li>
 
             <li>
-              <Link to="/reports-patient" className={linkClass("/reports-patient")}>
+              <Link
+                to="/reports-patient"
+                className={linkClass("/reports-patient")}
+              >
                 <FaFileAlt /> My Reports
               </Link>
             </li>
 
             <li>
-              <Link to="/recommendation-patient" className={linkClass("/recommendation-patient")}>
+              <Link
+                to="/recommendation-patient"
+                className={linkClass("/recommendation-patient")}
+              >
                 <FaLightbulb /> Recommendation
               </Link>
             </li>
-
           </ul>
         </div>
 
         <button className="mt-auto flex items-center gap-2 p-2 rounded-lg text-red-500 hover:bg-red-100 transition w-full">
           <FaSignOutAlt /> Log out
         </button>
-
       </div>
 
       {/* MAIN */}
       <div className="flex-1 p-4 md:p-6">
-
         {/* HEADER */}
         <div className="mb-6 mt-6">
           <h1 className="text-xl font-bold">Welcome back 👋</h1>
+
           <p className="text-gray-500 text-sm">
             Here's your recent scan activity and reports.
           </p>
@@ -123,7 +140,6 @@ export default function PatientDashboard() {
 
         {/* CARDS */}
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
-
           <div className="bg-white p-4 rounded-xl shadow flex flex-col items-center gap-2">
             <FaUpload className="text-blue-500" />
             <span>Upload MRI Scan</span>
@@ -143,60 +159,75 @@ export default function PatientDashboard() {
             <FaChartBar className="text-gray-600" />
             <span>Results History</span>
           </div>
-
         </div>
 
         {/* CHART */}
-        <div className="bg-white p-6 rounded-2xl shadow mb-6">
-          <h2 className="font-semibold mb-6 text-lg">
+        <div className="bg-white p-4 md:p-6 rounded-2xl shadow mb-6 overflow-x-auto">
+          <h2 className="font-semibold mb-6 text-lg text-gray-700">
             Monthly Scan Overview
           </h2>
 
-          <div className="flex items-end justify-between h-64 gap-3">
+          <div className="min-w-[600px] flex items-end justify-between h-72 gap-3">
+            {chartData.map((item, i) => {
+              const barHeight =
+                item.value === 0 ? 8 : item.value * 35;
 
-            {chartData.map((item, i) => (
-              <div key={i} className="flex flex-col items-center flex-1">
-
-                <span className="text-xs text-gray-500">
-                  {item.value}
-                </span>
-
+              return (
                 <div
-                  className="w-6 bg-blue-400 rounded-lg"
-                  style={{
-                    height: `${item.value * 20}px`,
-                    minHeight: "4px",
-                  }}
-                />
+                  key={i}
+                  className="flex flex-col items-center flex-1"
+                >
+                  {/* VALUE */}
+                  <span className="text-xs md:text-sm text-blue-600 font-medium mb-2">
+                    {item.value}
+                  </span>
 
-                <span className="text-xs mt-2 text-gray-500">
-                  {item.month}
-                </span>
+                  {/* BAR */}
+                  <div className="relative w-full flex justify-center">
+                    <div
+                      className="
+                        w-6 md:w-8
+                        bg-gradient-to-t
+                        from-blue-600
+                        to-blue-400
+                        rounded-t-2xl
+                        transition-all
+                        duration-300
+                        hover:scale-105
+                        shadow-md
+                      "
+                      style={{
+                        height: `${barHeight}px`,
+                      }}
+                    />
+                  </div>
 
-              </div>
-            ))}
-
+                  {/* MONTH */}
+                  <span className="text-xs md:text-sm mt-3 text-gray-500">
+                    {item.month}
+                  </span>
+                </div>
+              );
+            })}
           </div>
         </div>
 
         {/* TABLE */}
         <div className="bg-white p-6 rounded-2xl shadow">
-
           <h2 className="font-semibold mb-4 text-lg">
             Recent Reports
           </h2>
 
           <table className="w-full text-sm">
-
             <thead className="bg-gray-100 text-gray-600">
               <tr>
                 <th className="p-3 text-left">Date</th>
                 <th className="p-3 text-left">Tumor Type</th>
+                <th className="p-3 text-left">Confidence</th>
               </tr>
             </thead>
 
             <tbody>
-
               {loading ? (
                 <tr>
                   <td colSpan="2" className="text-center p-6">
@@ -205,32 +236,36 @@ export default function PatientDashboard() {
                 </tr>
               ) : reports.length === 0 ? (
                 <tr>
-                  <td colSpan="2" className="text-center p-6 text-gray-500">
+                  <td
+                    colSpan="2"
+                    className="text-center p-6 text-gray-500"
+                  >
                     No reports found
                   </td>
                 </tr>
               ) : (
                 reports.map((r) => (
                   <tr key={r.id} className="border-b">
-
-                    <td className="p-3">
+                    <td className="p-3  font-medium text-gray-700">
                       {new Date(r.date).toLocaleDateString()}
                     </td>
 
                     <td className="p-3">
-                      {r.tumorType || "Not available yet"}
-                    </td>
-
+     <span className="bg-blue-100 text-blue-700 px-3 py-1 rounded-full text-xs font-medium">
+    {r.tumorType || "Not available yet"}
+     </span>
+     </td>
+     <td className="p-3">
+                <span className="bg-blue-100 text-blue-700 px-3 py-1 rounded-full text-xs font-medium">
+                  {r.confidence || "--"}
+                </span>
+              </td>
                   </tr>
                 ))
               )}
-
             </tbody>
-
           </table>
-
         </div>
-
       </div>
     </div>
   );

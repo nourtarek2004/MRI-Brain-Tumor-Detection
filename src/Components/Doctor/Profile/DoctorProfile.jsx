@@ -47,7 +47,7 @@ export default function ProfileDoctor() {
     async function getProfile() {
       try {
         const res = await axios.get(
-          "https://mri-production-9d58.up.railway.app/api/doctor/profile",
+          "https://mri-production-7e28.up.railway.app/api/doctor/profile",
           {
             headers: {
               Authorization: `Bearer ${token}`
@@ -102,7 +102,7 @@ export default function ProfileDoctor() {
       const { profileImage, ...dataWithoutImage } = profile;
 
       await axios.put(
-        "https://mri-production-9d58.up.railway.app/api/doctor/profile",
+        "https://mri-production-7e28.up.railway.app/api/doctor/profile",
         dataWithoutImage,
         {
           headers: {
@@ -127,7 +127,7 @@ export default function ProfileDoctor() {
   async function handlePassword() {
     try {
       await axios.put(
-        "https://mri-production-9d58.up.railway.app/api/doctor/profile/change-password",
+        "https://mri-production-7e28.up.railway.app/api/doctor/profile/change-password",
         password,
         {
           headers: {

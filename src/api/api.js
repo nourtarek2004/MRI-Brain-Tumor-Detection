@@ -2,7 +2,7 @@
 import axios from "axios";
 
 const api = axios.create({
-  baseURL: "https://mri-production-9d58.up.railway.app",
+  baseURL: "https://mri-production-7e28.up.railway.app",
 });
 
 api.interceptors.request.use((config) => {
