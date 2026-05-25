@@ -3,6 +3,7 @@ import React from 'react'
 import { useEffect, useState } from "react";
 import axios from "axios";
 import { FaSearch, FaUserFriends } from "react-icons/fa";
+import NavRole from '../../NavRole/NavRole';
 
 export default function ChooseDoctor() {
   const [doctors, setDoctors] = useState([]);
@@ -76,6 +77,9 @@ export default function ChooseDoctor() {
   }
 
   return (
+    <>
+    <NavRole />
+   
     <div className="min-h-screen bg-[#F5F7FB] p-8">
 
       {/* Title */}
@@ -167,5 +171,6 @@ export default function ChooseDoctor() {
       )}
 
     </div>
+    </>
   );
 }

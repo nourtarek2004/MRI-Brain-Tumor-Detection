@@ -1,19 +1,32 @@
 import { useEffect, useState } from "react";
 import axios from "axios";
+
 import {
   FaUser,
   FaEnvelope,
   FaStethoscope,
   FaHospital,
   FaLock,
-  FaPen,
-  FaCheck,
-  FaTimes
+  FaCamera,
+  FaCheckCircle,
+  FaTimesCircle,
+  FaSignOutAlt
 } from "react-icons/fa";
 
 import NavRole from "../../NavRole/NavRole";
 
 export default function ProfileDoctor() {
+
+  const BASE_URL =
+    "https://mri-production-7e28.up.railway.app";
+
+  const defaultImage =
+    "https://cdn-icons-png.flaticon.com/512/149/149071.png";
+
+  const token = localStorage.getItem("token");
+
+  // ================= STATES =================
+
   const [profile, setProfile] = useState({
     name: "",
     email: "",
@@ -22,32 +35,46 @@ export default function ProfileDoctor() {
     profileImage: ""
   });
 
-  const [previewImage, setPreviewImage] = useState("");
   const [password, setPassword] = useState({
     currentPassword: "",
     newPassword: ""
   });
 
-  const [message, setMessage] = useState("");
-  const [messageType, setMessageType] = useState(""); // success | error
+  const [alert, setAlert] = useState({
+    show: false,
+    type: "",
+    text: ""
+  });
 
-  const token = localStorage.getItem("token");
+  // ================= ALERT =================
 
-  // ================= LOAD IMAGE FROM LOCALSTORAGE =================
-  useEffect(() => {
-    const savedImage = localStorage.getItem("doctorImage");
-    if (savedImage) {
-      setPreviewImage(savedImage);
-      setProfile((prev) => ({ ...prev, profileImage: savedImage }));
-    }
-  }, []);
+  function showAlert(type, text) {
+
+    setAlert({
+      show: true,
+      type,
+      text
+    });
+
+    setTimeout(() => {
+      setAlert({
+        show: false,
+        type: "",
+        text: ""
+      });
+    }, 3000);
+  }
 
   // ================= GET PROFILE =================
+
   useEffect(() => {
+
     async function getProfile() {
+
       try {
+
         const res = await axios.get(
-          "https://mri-production-7e28.up.railway.app/api/doctor/profile",
+          `${BASE_URL}/api/doctor/profile`,
           {
             headers: {
               Authorization: `Bearer ${token}`
@@ -57,53 +84,100 @@ export default function ProfileDoctor() {
 
         const data = res.data.data;
 
-        setProfile(data);
+        setProfile({
+          name: data.name || "",
+          email: data.email || "",
+          specialization:
+            data.specialization || "",
+          workplace: data.workplace || "",
+          profileImage:
+            data.profileImage || ""
+        });
 
-        if (data.profileImage) {
-          setPreviewImage(data.profileImage);
-          localStorage.setItem("doctorImage", data.profileImage);
-        }
-      } catch {
-        setMessage("Failed to load profile");
-        setMessageType("error");
+      } catch (err) {
+
+        console.log(err);
+
+        showAlert(
+          "error",
+          "Failed to load profile"
+        );
       }
     }
 
     getProfile();
+
   }, []);
 
-  // ================= IMAGE =================
-  function handleImageChange(e) {
+  // ================= IMAGE UPLOAD =================
+
+  async function handleImageChange(e) {
+
     const file = e.target.files[0];
+
     if (!file) return;
 
-    const reader = new FileReader();
+    const formData = new FormData();
 
-    reader.onloadend = () => {
-      const base64 = reader.result;
+    formData.append("profileImage", file);
 
-      setPreviewImage(base64);
+    try {
 
-      // حفظ الصورة محليًا
-      localStorage.setItem("doctorImage", base64);
+      const res = await axios.put(
+        `${BASE_URL}/api/doctor/profile/uploadImage`,
+        formData,
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+            "Content-Type":
+              "multipart/form-data"
+          }
+        }
+      );
+
+      console.log(res.data);
+
+      const imageUrl =
+        res.data.data.profileImage;
 
       setProfile((prev) => ({
         ...prev,
-        profileImage: base64
+        profileImage: imageUrl
       }));
-    };
 
-    reader.readAsDataURL(file);
+      showAlert(
+        "success",
+        "Image updated successfully"
+      );
+
+    } catch (err) {
+
+      console.log(err);
+
+      showAlert(
+        "error",
+        "Image upload failed"
+      );
+    }
   }
 
-  // ================= UPDATE PROFILE (NO IMAGE SENT) =================
+  // ================= UPDATE PROFILE =================
+
   async function handleUpdateProfile() {
+
     try {
-      const { profileImage, ...dataWithoutImage } = profile;
+
+      const dataToSend = {
+        name: profile.name,
+        email: profile.email,
+        specialization:
+          profile.specialization,
+        workplace: profile.workplace
+      };
 
       await axios.put(
-        "https://mri-production-7e28.up.railway.app/api/doctor/profile",
-        dataWithoutImage,
+        `${BASE_URL}/api/doctor/profile`,
+        dataToSend,
         {
           headers: {
             Authorization: `Bearer ${token}`
@@ -111,23 +185,30 @@ export default function ProfileDoctor() {
         }
       );
 
-      setMessage("Profile updated successfully");
-      setMessageType("success");
+      showAlert(
+        "success",
+        "Profile updated successfully"
+      );
 
-      setTimeout(() => setMessage(""), 3000);
-    } catch {
-      setMessage("Update failed");
-      setMessageType("error");
+    } catch (err) {
 
-      setTimeout(() => setMessage(""), 3000);
+      console.log(err);
+
+      showAlert(
+        "error",
+        "Update failed"
+      );
     }
   }
 
   // ================= PASSWORD =================
+
   async function handlePassword() {
+
     try {
+
       await axios.put(
-        "https://mri-production-7e28.up.railway.app/api/doctor/profile/change-password",
+        `${BASE_URL}/api/doctor/profile/change-password`,
         password,
         {
           headers: {
@@ -136,17 +217,24 @@ export default function ProfileDoctor() {
         }
       );
 
-      setMessage("Password updated successfully");
-      setMessageType("success");
+      showAlert(
+        "success",
+        "Password updated successfully"
+      );
 
-      setPassword({ currentPassword: "", newPassword: "" });
+      setPassword({
+        currentPassword: "",
+        newPassword: ""
+      });
 
-      setTimeout(() => setMessage(""), 3000);
-    } catch {
-      setMessage("Password failed");
-      setMessageType("error");
+    } catch (err) {
 
-      setTimeout(() => setMessage(""), 3000);
+      console.log(err);
+
+      showAlert(
+        "error",
+        "Password update failed"
+      );
     }
   }
 
@@ -157,156 +245,257 @@ export default function ProfileDoctor() {
       <div className="min-h-screen bg-[#F5F7FB] flex flex-col items-center py-10 mt-10">
 
         {/* PROFILE CARD */}
-        <div className="w-full max-w-xl bg-white rounded-2xl shadow-md border p-6">
+
+        <div className="w-full max-w-xl bg-white rounded-2xl shadow-md border border-blue-100 p-8">
 
           {/* IMAGE */}
+
           <div className="flex justify-center mb-6">
+
             <div className="relative">
+
               <img
                 src={
-                  previewImage ||
-                  "https://cdn-icons-png.flaticon.com/512/149/149071.png"
+                  profile.profileImage ||
+                  defaultImage
                 }
-                className="w-28 h-28 rounded-full object-cover shadow"
+                alt="doctor"
+                className="w-32 h-32 rounded-full object-cover border-4 border-blue-100 shadow"
+                onError={(e) => {
+                  e.target.src = defaultImage;
+                }}
               />
 
-              <label className="absolute bottom-1 right-1 bg-blue-500 text-white w-7 h-7 flex items-center justify-center rounded-full cursor-pointer">
-                <FaPen size={12} />
-                <input type="file" hidden onChange={handleImageChange} />
+              <label className="absolute bottom-1 right-1 bg-blue-500 hover:bg-blue-600 transition text-white w-10 h-10 flex items-center justify-center rounded-full cursor-pointer shadow-lg">
+
+                <FaCamera />
+
+                <input
+                  type="file"
+                  hidden
+                  accept="image/*"
+                  onChange={handleImageChange}
+                />
+
               </label>
+
             </div>
+
           </div>
 
-          <h2 className="text-center font-semibold mb-5 text-gray-700">
+          {/* TITLE */}
+
+          <h2 className="text-center font-bold text-xl text-gray-700 mb-6">
+
             Personal Information
+
           </h2>
 
           {/* INPUTS */}
-          <div className="space-y-3">
-            <input
-              value={profile.name}
-              onChange={(e) =>
-                setProfile({ ...profile, name: e.target.value })
-              }
-              placeholder="Name"
-              className="w-full border p-2 rounded-lg"
-            />
 
-            <input
-              value={profile.email}
-              onChange={(e) =>
-                setProfile({ ...profile, email: e.target.value })
-              }
-              placeholder="Email"
-              className="w-full border p-2 rounded-lg"
-            />
+          <div className="space-y-4">
 
-            <input
-              value={profile.specialization || ""}
-              onChange={(e) =>
-                setProfile({ ...profile, specialization: e.target.value })
-              }
-              placeholder="Specialization"
-              className="w-full border p-2 rounded-lg"
-            />
+            <div className="flex items-center border border-gray-200 rounded-xl px-4 py-3">
 
-            <input
-              value={profile.workplace || ""}
-              onChange={(e) =>
-                setProfile({ ...profile, workplace: e.target.value })
-              }
-              placeholder="Workplace"
-              className="w-full border p-2 rounded-lg"
-            />
+              <FaUser className="text-gray-400 mr-3" />
+
+              <input
+                value={profile.name}
+                onChange={(e) =>
+                  setProfile({
+                    ...profile,
+                    name: e.target.value
+                  })
+                }
+                placeholder="Name"
+                className="w-full outline-none"
+              />
+
+            </div>
+
+            <div className="flex items-center border border-gray-200 rounded-xl px-4 py-3">
+
+              <FaEnvelope className="text-gray-400 mr-3" />
+
+              <input
+                value={profile.email}
+                onChange={(e) =>
+                  setProfile({
+                    ...profile,
+                    email: e.target.value
+                  })
+                }
+                placeholder="Email"
+                className="w-full outline-none"
+              />
+
+            </div>
+
+            <div className="flex items-center border border-gray-200 rounded-xl px-4 py-3">
+
+              <FaStethoscope className="text-gray-400 mr-3" />
+
+              <input
+                value={
+                  profile.specialization
+                }
+                onChange={(e) =>
+                  setProfile({
+                    ...profile,
+                    specialization:
+                      e.target.value
+                  })
+                }
+                placeholder="Specialization"
+                className="w-full outline-none"
+              />
+
+            </div>
+
+            <div className="flex items-center border border-gray-200 rounded-xl px-4 py-3">
+
+              <FaHospital className="text-gray-400 mr-3" />
+
+              <input
+                value={profile.workplace}
+                onChange={(e) =>
+                  setProfile({
+                    ...profile,
+                    workplace:
+                      e.target.value
+                  })
+                }
+                placeholder="Workplace"
+                className="w-full outline-none"
+              />
+
+            </div>
+
           </div>
 
-          {/* BUTTONS */}
-          <div className="flex justify-center gap-3 mt-6">
-            <button
-              onClick={handleUpdateProfile}
-              className="bg-blue-500 text-white px-6 py-2 rounded-lg"
-            >
-              Save
-            </button>
+          {/* BUTTON */}
 
-            <button
-              onClick={() => window.location.reload()}
-              className="border px-6 py-2 rounded-lg"
-            >
-              Cancel
-            </button>
-          </div>
+          <button
+            onClick={handleUpdateProfile}
+            className="w-full mt-6 bg-blue-500 hover:bg-blue-600 transition text-white py-3 rounded-xl font-semibold"
+          >
+            Save Changes
+          </button>
+
         </div>
 
         {/* PASSWORD */}
-        <div className="w-full max-w-xl bg-white rounded-2xl shadow-md border p-6 mt-6">
 
-          <h2 className="text-center font-semibold mb-4">
+        <div className="w-full max-w-xl bg-white rounded-2xl shadow-md border border-blue-100 p-8 mt-6">
+
+          <h2 className="text-center font-bold text-xl text-gray-700 mb-6">
+
             Change Password
+
           </h2>
 
-          <input
-            type="password"
-            placeholder="Current Password"
-            value={password.currentPassword}
-            onChange={(e) =>
-              setPassword({
-                ...password,
-                currentPassword: e.target.value
-              })
-            }
-            className="w-full border p-2 rounded-lg mb-2"
-          />
+          <div className="space-y-4">
 
-          <input
-            type="password"
-            placeholder="New Password"
-            value={password.newPassword}
-            onChange={(e) =>
-              setPassword({
-                ...password,
-                newPassword: e.target.value
-              })
-            }
-            className="w-full border p-2 rounded-lg"
-          />
+            <div className="flex items-center border border-gray-200 rounded-xl px-4 py-3">
 
-          <div className="flex justify-center mt-5">
-            <button
-              onClick={handlePassword}
-              className="bg-blue-500 text-white px-6 py-2 rounded-lg"
-            >
-              Update Password
-            </button>
+              <FaLock className="text-gray-400 mr-3" />
+
+              <input
+                type="password"
+                placeholder="Current Password"
+                value={
+                  password.currentPassword
+                }
+                onChange={(e) =>
+                  setPassword({
+                    ...password,
+                    currentPassword:
+                      e.target.value
+                  })
+                }
+                className="w-full outline-none"
+              />
+
+            </div>
+
+            <div className="flex items-center border border-gray-200 rounded-xl px-4 py-3">
+
+              <FaLock className="text-gray-400 mr-3" />
+
+              <input
+                type="password"
+                placeholder="New Password"
+                value={password.newPassword}
+                onChange={(e) =>
+                  setPassword({
+                    ...password,
+                    newPassword:
+                      e.target.value
+                  })
+                }
+                className="w-full outline-none"
+              />
+
+            </div>
+
           </div>
+
+          <button
+            onClick={handlePassword}
+            className="w-full mt-6 bg-blue-500 hover:bg-blue-600 transition text-white py-3 rounded-xl font-semibold"
+          >
+            Update Password
+          </button>
+
         </div>
 
         {/* LOGOUT */}
+
         <button
           onClick={() => {
             localStorage.removeItem("token");
-            localStorage.removeItem("doctorImage");
-            window.location.href = "/login";
+
+            window.location.href =
+              "/login";
           }}
-          className="mt-6 bg-red-600 text-white px-8 py-2 rounded-lg"
+          className="mt-6 bg-red-500 hover:bg-red-600 transition text-white px-10 py-3 rounded-xl flex items-center gap-2 font-semibold"
         >
+
+          <FaSignOutAlt />
+
           Log Out
+
         </button>
 
         {/* ALERT */}
-        {message && (
+
+        {alert.show && (
+
           <div
-            className={`fixed bottom-4 right-4 px-4 py-2 rounded shadow flex items-center gap-2
+            className={`fixed top-5 right-5 px-5 py-4 rounded-xl shadow-2xl flex items-center gap-3 text-white z-50 transition-all duration-300
+
             ${
-              messageType === "success"
-                ? "bg-blue-100 text-blue-700"
-                : "bg-red-100 text-red-700"
-            }`}
+              alert.type === "success"
+                ? "bg-blue-500"
+                : "bg-red-500"
+            }
+          `}
           >
-            {messageType === "success" ? <FaCheck /> : <FaTimes />}
-            {message}
+
+            {alert.type === "success" ? (
+              <FaCheckCircle className="text-xl" />
+            ) : (
+              <FaTimesCircle className="text-xl" />
+            )}
+
+            <span className="font-medium">
+              {alert.text}
+            </span>
+
           </div>
+
         )}
+
       </div>
     </>
   );

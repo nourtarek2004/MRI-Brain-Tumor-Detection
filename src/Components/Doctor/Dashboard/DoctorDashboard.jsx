@@ -109,9 +109,9 @@ export default function DoctorDashboard() {
 
         {/* Cards */}
         <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-4 mb-6">
-          <Card title="Total Patients" value={data?.patientsCount || 0} />
-          <Card title="Tumors Detected" value={data?.tumorsDetected || 0} />
-          <Card title="Average Accuracy" value={data?.averageAccuracy || "0%"} />
+          <Card title="Total Patients" value={data?.patientsCount } />
+          <Card title="Tumors Detected" value={data?.tumorsDetected } />
+          <Card title="Average Accuracy" value={data?.averageAccuracy } />
           <Card
             title="Last Updated"
             value={
@@ -172,7 +172,7 @@ export default function DoctorDashboard() {
                       </td>
 
                       <td className="p-3 text-center">
-                        {p.date ? new Date(p.date).toLocaleDateString() : "--"}
+                        {p.date ? new Date(p.date).toLocaleDateString() : ""}
                       </td>
 
                       <td className="p-3 text-center">{p.tumorType}</td>

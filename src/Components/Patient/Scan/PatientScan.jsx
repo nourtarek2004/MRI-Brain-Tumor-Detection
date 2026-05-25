@@ -10,38 +10,38 @@ export default function PatientScan() {
   const [result, setResult] = useState(null);
   const [loading, setLoading] = useState(false);
 
-  // اختيار الصورة
+  const report = result?.reports?.[0]; // أهم جزء
+
   function handleFileChange(e) {
     const selectedFile = e.target.files[0];
-
     if (!selectedFile) return;
 
     setFile(selectedFile);
     setPreview(URL.createObjectURL(selectedFile));
   }
 
-  // تنظيف preview
   useEffect(() => {
     return () => {
-      if (preview) {
-        URL.revokeObjectURL(preview);
-      }
+      if (preview) URL.revokeObjectURL(preview);
     };
   }, [preview]);
 
-  // Upload
+  // ================= CONFIDENCE FORMAT =================
+  const formatConfidence = (value) => {
+    if (value === null || value === undefined) return "N/A";
+    if (value > 1) return `${value.toFixed(1)}%`;
+    return `${(value * 100).toFixed(1)}%`;
+  };
+
+  // ================= UPLOAD =================
   async function handleUpload() {
     if (!file) return alert("Please select an image");
 
     const formData = new FormData();
     formData.append("scanImage", file);
 
-    console.log("TOKEN:", localStorage.getItem("token"));
-
     try {
       setLoading(true);
-
-      // reset old result
       setResult(null);
       setScanId(null);
 
@@ -55,10 +55,7 @@ export default function PatientScan() {
         }
       );
 
-      console.log("UPLOAD:", res.data);
-
       setScanId(res.data.data._id);
-
     } catch (err) {
       console.log(err);
       alert("Upload failed");
@@ -67,7 +64,7 @@ export default function PatientScan() {
     }
   }
 
-  // Polling
+  // ================= POLLING =================
   useEffect(() => {
     if (!scanId) return;
 
@@ -82,29 +79,25 @@ export default function PatientScan() {
           }
         );
 
-        console.log("RESULT:", res.data);
-
         const data = res.data.data;
 
-        setResult(data);
+        setResult({
+          scan: data.scan,
+          reports: data.reports || [],
+        });
 
-        // stop polling
         if (
           data.scan.status === "Completed" ||
           data.scan.status === "Rejected"
         ) {
           clearInterval(interval);
         }
-
       } catch (err) {
-        console.log("Polling Error:", err);
+        console.log(err);
 
-        // لو التوكن انتهى
         if (err.response?.status === 401) {
-          alert("Session expired, please login again");
-
+          alert("Session expired");
           localStorage.removeItem("token");
-
           window.location.href = "/login";
         }
       }
@@ -112,6 +105,9 @@ export default function PatientScan() {
 
     return () => clearInterval(interval);
   }, [scanId]);
+
+  const isTumor =
+    report?.tumorType && report.tumorType.toLowerCase() !== "normal";
 
   return (
     <>
@@ -130,90 +126,79 @@ export default function PatientScan() {
 
           <div className="grid md:grid-cols-2 gap-6">
 
-            {/* Upload */}
+            {/* UPLOAD */}
             <div className="bg-white p-6 rounded-xl shadow">
 
-              <div className="border-2 border-dashed p-8 text-center rounded-xl">
+              <input type="file" hidden id="file" onChange={handleFileChange} />
 
-                {preview ? (
-                  <img
-                    src={preview}
-                    alt="preview"
-                    className="mx-auto w-40 mb-4 rounded-lg"
-                  />
-                ) : (
-                  <div>
+              <label htmlFor="file" className="cursor-pointer">
+                <div className="border-2 border-dashed p-8 text-center rounded-xl">
+
+                  {preview ? (
+                    <img src={preview} className="w-40 mx-auto mb-4" />
+                  ) : (
                     <FaUpload className="text-4xl mx-auto text-blue-500 mb-3" />
+                  )}
 
-                    <p className="text-gray-500">
-                      Upload MRI image
-                    </p>
-                  </div>
-                )}
-
-                <input
-                  type="file"
-                  hidden
-                  id="file"
-                  onChange={handleFileChange}
-                />
-
-                <label
-                  htmlFor="file"
-                  className="mt-4 inline-block bg-blue-500 hover:bg-blue-600 transition text-white px-5 py-2 rounded-lg cursor-pointer"
-                >
-                  Browse Files
-                </label>
-              </div>
+                  <p className="text-gray-500">Upload MRI image</p>
+                </div>
+              </label>
 
               <button
                 onClick={handleUpload}
                 disabled={loading}
-                className="mt-5 w-full bg-blue-600 hover:bg-blue-700 transition text-white py-2 rounded-lg disabled:opacity-50"
+                className="mt-5 w-full bg-blue-600 text-white py-2 rounded-lg"
               >
                 {loading ? "Uploading..." : "Upload & Analyze"}
               </button>
-
             </div>
 
-            {/* Result */}
+            {/* RESULT */}
             <div className="bg-white p-6 rounded-xl shadow">
 
-              <h2 className="font-semibold mb-4">
-                Result
-              </h2>
+              <h2 className="font-semibold mb-4">Result</h2>
 
-              {!result && (
-                <p className="text-gray-400">
-                  No result yet
-                </p>
+              {!report && (
+                <p className="text-gray-400">No result yet</p>
               )}
 
-              {result?.scan?.status === "Pending" && (
-                <div className="bg-yellow-100 text-yellow-700 p-4 rounded-lg animate-pulse">
-                  ⏳ AI is analyzing your scan...
-                </div>
-              )}
+              {report && (
+                <div className={`p-5 rounded-2xl border ${
+                  isTumor
+                    ? "bg-red-50 border-red-200"
+                    : "bg-green-50 border-green-200"
+                }`}>
 
-              {result?.scan?.status === "Completed" && (
-                <div className="space-y-3">
+                  <h3 className={`font-bold mb-4 ${
+                    isTumor ? "text-red-600" : "text-green-600"
+                  }`}>
+                    {isTumor ? "Tumor Detected" : "Normal Scan"}
+                  </h3>
 
-                  <div className="bg-green-100 p-4 rounded-lg space-y-2">
-
-                    <p>
-                      <strong>Tumor:</strong>{" "}
-                      {result.reports?.[0]?.tumorType || "N/A"}
+                  {/* Tumor Type */}
+                  <div className="bg-white p-3 rounded mb-3">
+                    <p className="text-gray-500 text-sm">Tumor Type</p>
+                    <p className={isTumor ? "text-red-600" : "text-green-600"}>
+                      {report.tumorType}
                     </p>
-
-                    <p>
-                      <strong>Confidence:</strong>{" "}
-                      {result.reports?.[0]?.confidence || "N/A"}
-                    </p>
-
                   </div>
 
-                  <div className="bg-gray-100 p-4 rounded-lg text-gray-700">
-                    {result.reports?.[0]?.notes || "No notes"}
+                  {/* Confidence */}
+                  <div className="bg-white p-3 rounded mb-3">
+                    <p className="text-gray-500 text-sm">Confidence</p>
+                    <p className={isTumor ? "text-red-500" : "text-green-600"}>
+                      {formatConfidence(report.confidenceScore)}
+                    </p>
+                  </div>
+
+                  {/* Notes */}
+                  <div className={`p-3 rounded ${
+                    isTumor ? "bg-red-100 text-red-700" : "bg-green-100 text-green-700"
+                  }`}>
+                    {report.notes ||
+                      (isTumor
+                        ? "Please consult your doctor."
+                        : "Your MRI scan appears normal.")}
                   </div>
 
                 </div>
