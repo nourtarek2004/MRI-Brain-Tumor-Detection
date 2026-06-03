@@ -78,21 +78,16 @@ export default function Patient() {
       <div className="min-h-screen bg-[#F5F7FB] p-4 md:p-8">
 
         {/* Header */}
-        <div className="mb-8 mt-10">
+    <div className="mb-8 mt-10">
+         <h2 className="text-2xl md:text-3xl font-bold text-gray-800">Patients</h2>
 
-          <h2 className="text-3xl font-bold text-gray-800">
-            Patients
-          </h2>
-
-          <p className="text-gray-500 mt-1">
-            Manage and review all patient scans and reports.
-          </p>
-
-        </div>
+     <p className="text-gray-500 mt-1 text-sm md:text-base">
+    Manage and review all patient scans and reports.
+     </p>
+    </div>
 
         {/* Search */}
-        <div className="flex flex-col md:flex-row gap-4 mb-6">
-
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">  
           <input
             type="text"
             placeholder="Search patient name..."
@@ -112,15 +107,15 @@ export default function Patient() {
         </div>
 
         {/* Desktop Table */}
-        <div className="hidden md:block overflow-x-auto bg-white rounded-2xl shadow-sm">
+       <div className="hidden lg:block bg-white rounded-2xl shadow-sm overflow-hidden">
+           <div className="overflow-x-auto">
 
-          <table className="w-full text-sm">
+            <table className="min-w-[950px] w-full text-sm">
 
             <thead className="bg-gray-100 text-gray-600 uppercase text-xs">
 
               <tr>
-                <th className="p-4">Patient</th>
-                <th>Age</th>
+                <th className="p-4 text-left">Patient</th>
                 <th>Tumor</th>
                 <th>Confidence</th>
                 <th>Date</th>
@@ -159,30 +154,23 @@ export default function Patient() {
 
                 filtered.map((p) => (
 
-                  <tr
-                    key={p.id}
-                    className="border-t text-center hover:bg-gray-50 transition"
-                  >
+                  <tr   key={p.id} className="border-t text-center hover:bg-gray-50 transition">
 
-                    <td className="p-4">
+                          <td className="p-4">
+                              <div className="flex items-center gap-3 min-w-[180px]">
+                                <div className="w-10 h-10 flex-shrink-0 rounded-full bg-blue-100 text-blue-600 flex items-center justify-center font-semibold">
+                                  {p.patientName?.charAt(0)}
+                                </div>
 
-                      <div className="flex items-center gap-3 justify-center">
-
-                        <div className="w-10 h-10 rounded-full bg-blue-100 text-blue-600 flex items-center justify-center font-semibold">
-
-                          {p.patientName?.charAt(0)}
-
-                        </div>
-
-                        <span className="font-medium">
-                          {p.patientName}
-                        </span>
-
-                      </div>
-
-                    </td>
-
-                    <td>{p.age || "--"}</td>
+                                <span
+                                  className="font-medium text-left w-[120px] truncate"
+                                  title={p.patientName}
+                                >
+                                  {p.patientName}
+                                </span>
+                              </div>
+                           </td>
+                   
 
                     <td>
                       <span className="text-gray-700">
@@ -225,21 +213,9 @@ export default function Patient() {
                     {/* Scan */}
                     <td>
 
-                      {p.scan ? (
+                      {p.scan ? ( <img src={p.scan} alt="scan" className="w-12 h-12 lg:w-14 lg:h-14 object-cover rounded-lg mx-auto border"/>) : ("--"
 
-                        <img
-                          src={p.scan}
-                          alt="scan"
-                          className="w-14 h-14 object-cover rounded-lg mx-auto border"
-                        />
-
-                      ) : (
-
-                        "--"
-
-                      )}
-
-                    </td>
+                      )} </td>
 
                     {/* Actions */}
                     <td>
@@ -263,94 +239,95 @@ export default function Patient() {
           </table>
 
         </div>
+        </div>
 
         {/* Mobile Cards */}
-        <div className="md:hidden space-y-4">
+        {/* Mobile Cards */}
+<div className="lg:hidden space-y-4">
 
-          {loading ? (
+  {loading ? (
 
-            <div className="text-center text-gray-400 py-10">
-              Loading...
-            </div>
+    <div className="text-center py-10 text-gray-400">
+      Loading...
+    </div>
 
-          ) : filtered.length === 0 ? (
+  ) : filtered.length === 0 ? (
 
-            <div className="text-center text-gray-400 py-10">
-              No patients found
-            </div>
+    <div className="text-center py-10 text-gray-400">
+      No patients found
+    </div>
 
-          ) : (
+  ) : (
 
-            filtered.map((p) => (
+    filtered.map((p) => (
 
-              <div
-                key={p.id}
-                className="bg-white shadow-sm rounded-2xl p-4 space-y-3"
-              >
+      <div
+        key={p.id}
+        className="bg-white shadow-sm rounded-2xl p-4 border border-gray-100"
+      >
+        <div className="flex items-center gap-3 mb-3">
+          <div className="w-12 h-12 rounded-full bg-blue-100 text-blue-600 flex items-center justify-center font-semibold">
+            {p.patientName?.charAt(0)}
+          </div>
 
-                <div className="flex items-center gap-3">
+          <div>
+            <h3 className="font-semibold text-gray-800">
+              {p.patientName}
+            </h3>
 
-                  <div className="w-12 h-12 rounded-full bg-blue-100 text-blue-600 flex items-center justify-center font-semibold">
-
-                    {p.patientName?.charAt(0)}
-
-                  </div>
-
-                  <div>
-
-                    <h3 className="font-semibold text-gray-800">
-                      {p.patientName}
-                    </h3>
-
-                    <p className="text-xs text-gray-500">
-                      {p.tumorType}
-                    </p>
-
-                  </div>
-
-                </div>
-
-                {p.scan && (
-
-                  <img
-                    src={p.scan}
-                    alt="scan"
-                    className="w-full h-40 object-cover rounded-xl border"
-                  />
-
-                )}
-
-                <div className="text-sm text-gray-600 space-y-1">
-
-                  <p>
-                    <span className="font-medium">Age:</span> {p.age || "--"}
-                  </p>
-
-                  <p>
-                    <span className="font-medium">Confidence:</span>{" "}
-                    {p.confidence}
-                  </p>
-
-                  <p>
-                    <span className="font-medium">Date:</span>{" "}
-                    {new Date(p.scanDate).toLocaleDateString()}
-                  </p>
-
-                </div>
-
-                <button
-                  onClick={() => navigate(`/patient/${p.id}`)}
-                  className="w-full bg-blue-500 hover:bg-blue-600 text-white py-2 rounded-xl transition"
-                >
-                  View Details
-                </button>
-
-              </div>
-
-            ))
-          )}
-
+            <p className="text-xs text-gray-500">
+              {p.tumorType}
+            </p>
+          </div>
         </div>
+
+        {p.scan && (
+          <img
+            src={p.scan}
+            alt="scan"
+            className="w-full h-44 object-cover rounded-xl border mb-3"
+          />
+        )}
+
+        <div className="space-y-2 text-sm text-gray-600">
+          <p>
+            <span className="font-medium">Confidence:</span>{" "}
+            {p.confidence}
+          </p>
+
+          <p>
+            <span className="font-medium">Date:</span>{" "}
+            {new Date(p.scanDate).toLocaleDateString()}
+          </p>
+
+          <p>
+            <span className="font-medium">Status:</span>
+
+            <span
+              className={`ml-2 px-2 py-1 rounded-full text-xs ${
+                p.status === "Pending"
+                  ? "bg-yellow-100 text-yellow-700"
+                  : "bg-green-100 text-green-700"
+              }`}
+            >
+              {p.status}
+            </span>
+          </p>
+        </div>
+
+        <button
+          onClick={() => navigate(`/patient/${p.id}`)}
+          className="w-full mt-4 bg-blue-500 hover:bg-blue-600 text-white py-2 rounded-xl transition"
+        >
+          View Details
+        </button>
+      </div>
+
+    ))
+
+  )}
+
+</div>
 
       </div>
     </>

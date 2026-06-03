@@ -96,12 +96,12 @@ export default function DoctorReports() {
 
             <thead className="bg-gray-100 text-gray-600">
               <tr>
-                <th className="p-3 sm:p-4 text-left">Patient</th>
-                <th className="p-3 sm:p-4">Date</th>
-                <th className="p-3 sm:p-4">Tumor</th>
-                <th className="p-3 sm:p-4">Confidence</th>
-                <th className="p-3 sm:p-4 hidden sm:table-cell">Doctor Notes</th>
-                <th className="p-3 sm:p-4">Status</th>
+                <th className="p-3 text-left ">Patient</th>
+                <th className="p-3   text-left">Date</th>
+                <th className="p-3 sm:p-4 text-left">Tumor</th>
+                <th className="p-3 sm:p-4  text-left">Confidence</th>
+                <th className="p-3 sm:p-4 hidden sm:table-cell  text-left">Doctor Notes</th>
+                <th className="p-3 sm:p-4 text-left">Status</th>
               </tr>
             </thead>
 
