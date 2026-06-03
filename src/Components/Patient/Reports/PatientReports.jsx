@@ -249,7 +249,7 @@ export default function PatientDashboard() {
 
           <div className="p-4 border-b bg-blue-50">
             <h2 className="font-semibold text-blue-600">
-              Recent Reports
+              Your All Reports
             </h2>
           </div>
 

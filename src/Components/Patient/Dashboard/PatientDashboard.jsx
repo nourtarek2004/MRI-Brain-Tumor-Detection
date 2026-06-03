@@ -10,16 +10,27 @@ import {
 } from "react-icons/fa";
 
 import api from "../../../api/api";
-import { Link, useLocation } from "react-router-dom";
-import logo from "../../../assets/logo.png";
 
+import logo from "../../../assets/logo.png";
+import { Link, useLocation, useNavigate } from "react-router-dom";
 export default function PatientDashboard() {
   const location = useLocation();
 
   const [summary, setSummary] = useState(null);
   const [reports, setReports] = useState([]);
+  const [allReports, setAllReports] = useState([]);
   const [loading, setLoading] = useState(true);
   const [deletingId, setDeletingId] = useState(null);
+ 
+
+const navigate = useNavigate();
+
+const handleLogout = () => {
+  localStorage.removeItem("token");
+  localStorage.removeItem("user");
+
+  navigate("/login");
+};
 
   useEffect(() => {
     fetchDashboardData();
@@ -30,16 +41,17 @@ export default function PatientDashboard() {
     setLoading(true);
 
     try {
-      const summaryRes = await api.get(
-        "/api/patient/dashboard/summary"
-      );
-      setSummary(summaryRes.data);
+const [summaryRes, reportsRes] = await Promise.all([
+  api.get("/api/patient/dashboard/summary"),
+  api.get("/api/patient/reports"),
+]);
+ setSummary(summaryRes.data);
+const data = reportsRes.data.data || [];
 
-      const reportsRes = await api.get(
-        "/api/patient/dashboard/recent-reports"
-      );
+setAllReports(data);
 
-      setReports(reportsRes.data.data || []);
+setReports(data.slice(0, 5));
+     
       console.log(reportsRes.data.data);
     } catch (err) {
       console.log(err);
@@ -114,7 +126,7 @@ export default function PatientDashboard() {
       setDeletingId(null);
     }
   };
-
+ 
   // ================= ACTIVE LINK =================
   const linkClass = (path) =>
     `flex items-center gap-3 p-3 rounded-xl transition-all duration-200 ${
@@ -128,9 +140,10 @@ export default function PatientDashboard() {
     "Jan","Feb","Mar","Apr","May","Jun",
     "Jul","Aug","Sep","Oct","Nov","Dec",
   ];
+  
 
   const chartData = months.map((month, index) => {
-    const count = reports.filter((r) => {
+    const count = allReports.filter((r) => {
       if (!r.date) return false;
       return new Date(r.date).getMonth() === index;
     }).length;
@@ -140,6 +153,7 @@ export default function PatientDashboard() {
       value: count,
     };
   });
+  const maxScans = Math.max(...chartData.map(item => item.value), 1);
 
   return (
     <div className="flex flex-col md:flex-row min-h-screen bg-[#F5F7FB]">
@@ -181,10 +195,8 @@ export default function PatientDashboard() {
           </ul>
         </div>
 
-        <button className="mt-auto flex items-center justify-center gap-2 p-3 rounded-xl text-red-500 hover:bg-red-100 transition w-full font-medium">
-          <FaSignOutAlt />
-          Logout
-        </button>
+        <button onClick={handleLogout} className="mt-auto flex items-center justify-center gap-2 p-3 rounded-xl text-red-500 hover:bg-red-100 transition w-full font-medium">
+          <FaSignOutAlt /> Logout</button>
 
       </div>
 
@@ -242,7 +254,7 @@ export default function PatientDashboard() {
             <div className="text-sm text-gray-500">
               Total Scans:{" "}
               <span className="font-semibold text-blue-600">
-                {reports.length}
+               {allReports.length}
               </span>
             </div>
           </div>
@@ -251,7 +263,7 @@ export default function PatientDashboard() {
 
             {chartData.map((item, i) => {
               const barHeight =
-                item.value === 0 ? 10 : item.value * 35;
+              item.value === 0 ? 10: (item.value / maxScans) * 220;
 
               return (
                 <div key={i} className="flex flex-col items-center flex-1">

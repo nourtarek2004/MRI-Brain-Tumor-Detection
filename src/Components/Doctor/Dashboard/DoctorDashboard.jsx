@@ -110,7 +110,7 @@ export default function DoctorDashboard() {
         {/* Cards */}
         <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-4 mb-6">
           <Card title="Total Patients" value={data?.patientsCount } />
-          <Card title="Tumors Detected" value={data?.tumorsDetected } />
+          <Card title="Tumors Detected" value={data?.tumorTypeDistribution?.tumor_detected || 0 } />
           <Card title="Average Accuracy" value={data?.averageAccuracy } />
           <Card
             title="Last Updated"
@@ -184,9 +184,8 @@ export default function DoctorDashboard() {
                       </td>
 
                       <td className="p-3 text-center">
-                        <button className="bg-blue-500 hover:bg-blue-600 text-white px-4 py-1 rounded-lg text-xs">
-                          View
-                        </button>
+                        <button onClick={() => window.open(p.reportUrl, "_blank")} className="bg-blue-500 hover:bg-blue-600 text-white px-4 py-1 rounded-lg text-xs">
+                            View</button>
                       </td>
 
                     </tr>
