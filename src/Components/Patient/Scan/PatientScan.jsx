@@ -2,6 +2,7 @@ import React, { useEffect, useState } from "react";
 import axios from "axios";
 import { FaUpload } from "react-icons/fa";
 import NavRole from "../../NavRole/NavRole";
+import { FaVolumeUp } from "react-icons/fa";
 
 export default function PatientScan() {
   const [file, setFile] = useState(null);
@@ -9,7 +10,7 @@ export default function PatientScan() {
   const [scanId, setScanId] = useState(null);
   const [result, setResult] = useState(null);
   const [loading, setLoading] = useState(false);
-
+  const [simpleText, setSimpleText] = useState("");
   const report = result?.reports?.[0]; // أهم جزء
 
   function handleFileChange(e) {
@@ -87,9 +88,7 @@ export default function PatientScan() {
         });
 
         if (
-          data.scan.status === "Completed" ||
-          data.scan.status === "Rejected"
-        ) {
+          data.scan.status === "Completed" || data.scan.status === "Rejected") {
           clearInterval(interval);
         }
       } catch (err) {
@@ -108,7 +107,37 @@ export default function PatientScan() {
 
   const isTumor =
     report?.tumorType && report.tumorType.toLowerCase() !== "normal";
+ const speak = (text) => {
+  speechSynthesis.cancel();
 
+  const utterance = new SpeechSynthesisUtterance(text);
+
+  utterance.lang = "ar";
+
+  utterance.rate = 0.9;
+
+  speechSynthesis.speak(utterance);
+};
+const getSimpleExplanation = () => {
+  if (!report) {
+    return "استنى شوية لحد ما التحليل يخلص.";
+  }
+
+  switch (report.tumorType?.toLowerCase()) {
+    case "normal":
+      return "الحمد لله. لم يتم اكتشاف مؤشرات واضحة على وجود ورم في صورة الرنين المغناطيسي. ومع ذلك، يفضل مراجعة الطبيب المختص للتأكد من النتيجة.";
+
+    case "meningioma":
+      return "تم اكتشاف مؤشرات مرتبطة بورم من نوع مينينجيوما. هذه النتيجة أولية وتعتمد على التحليل الآلي للصورة. يرجى مراجعة الطبيب المختص لتقييم الحالة بشكل دقيق.";
+
+    case "glioma":
+      return "تم اكتشاف مؤشرات مرتبطة بورم من نوع جليوما. يرجى مراجعة الطبيب المختص في أقرب وقت لمراجعة النتيجة وتحديد الخطوات المناسبة.";
+
+    
+    default:
+      return "اكتمل تحليل الصورة. يرجى مراجعة الطبيب المختص للاطلاع على تفاصيل النتيجة.";
+  }
+};
   return (
     <>
       <NavRole />
@@ -200,6 +229,30 @@ export default function PatientScan() {
                         ? "Please consult your doctor."
                         : "Your MRI scan appears normal.")}
                   </div>
+                  {/* Voice Explanation Button */}
+                 <button onClick={() => {
+                        const explanation = getSimpleExplanation();
+                        setSimpleText(explanation);
+                        speak(explanation);
+                      }}
+  className="mt-4 w-full bg-blue-600 text-white py-2 rounded-lg flex items-center justify-center gap-2"
+>
+  <FaVolumeUp />
+  استماع إلى شرح النتيجة
+</button>
+
+{/* Simple Explanation */}
+{simpleText && (
+  <div className="mt-4 bg-blue-50 border border-blue-200 p-4 rounded-xl">
+    <h4 className="font-semibold text-blue-700 mb-2">
+      شرح مبسط
+    </h4>
+
+    <p className="text-gray-700 leading-7">
+      {simpleText}
+    </p>
+  </div>
+)}
 
                 </div>
               )}
