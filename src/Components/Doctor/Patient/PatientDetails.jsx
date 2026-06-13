@@ -52,7 +52,7 @@ export default function PatientDetails() {
 
       console.log(err.response?.data || err);
 
-      setError("Failed to load patient details ❌");
+      setError("Failed to load patient details ");
 
     } finally {
 
@@ -188,10 +188,16 @@ export default function PatientDetails() {
           {/* ========================= */}
           <div className="bg-white rounded-2xl shadow-sm p-6 flex flex-col md:flex-row items-center gap-6">
 
-            <img
-              src="https://cdn-icons-png.flaticon.com/512/3135/3135715.png"
+             <img src={
+                data?.patientInfo?.profileImage ||
+                "https://cdn-icons-png.flaticon.com/512/3135/3135715.png"
+              }
               alt="patient"
               className="w-24 h-24 rounded-full border object-cover"
+              onError={(e) => {
+                e.target.src =
+                  "https://cdn-icons-png.flaticon.com/512/3135/3135715.png";
+              }}
             />
 
             <div className="text-center md:text-left">

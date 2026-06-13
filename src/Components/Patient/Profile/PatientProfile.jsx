@@ -146,7 +146,7 @@ export default function ProfilePatient() {
       const imageUrl =
         res.data.data.profileImage;
 
-      // ✅ SAVE IMAGE DIRECTLY
+      // SAVE IMAGE DIRECTLY
       setProfile((prev) => ({
         ...prev,
         image: imageUrl,
@@ -407,7 +407,7 @@ export default function ProfilePatient() {
         {alert.show && (
 
           <div
-            className={`fixed top-6 right-6 px-5 py-4 rounded-xl shadow-xl flex items-center gap-3 text-white z-50 transition-all duration-300
+            className={`fixed bottom-6 right-6 px-5 py-4 rounded-xl shadow-xl flex items-center gap-3 text-white z-50 transition-all duration-300
               
               ${
                 alert.type === "success"

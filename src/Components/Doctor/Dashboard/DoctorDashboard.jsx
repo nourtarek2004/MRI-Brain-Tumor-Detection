@@ -121,6 +121,18 @@ export default function DoctorDashboard() {
             }
           />
         </div>
+        {/* Legend */}
+           <div className="bg-blue-50 border border-blue-200 rounded-xl px-4 py-3 mb-4">
+              <div className="flex items-center gap-3">
+                
+                <div className="w-3 h-3 rounded-full bg-blue-300"></div>
+
+                <p className="text-sm text-blue-700 font-medium">
+                  Blue circle indicates: Doctor has completed the report
+                </p>
+
+              </div>
+            </div>
 
         {/* Table */}
         <div className="bg-white rounded-2xl shadow-sm overflow-hidden mb-6 border border-gray-100">

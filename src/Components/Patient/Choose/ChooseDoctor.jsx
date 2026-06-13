@@ -4,6 +4,10 @@ import { useEffect, useState } from "react";
 import axios from "axios";
 import { FaSearch, FaUserFriends } from "react-icons/fa";
 import NavRole from '../../NavRole/NavRole';
+import {
+  FaCheckCircle,
+  FaTimesCircle
+} from "react-icons/fa";
 
 export default function ChooseDoctor() {
   const [doctors, setDoctors] = useState([]);
@@ -161,14 +165,29 @@ export default function ChooseDoctor() {
           ← Continue
         </button>
       </div>
+        {message && (
+          <div
+            className="
+              fixed bottom-6 right-6
+              min-w-[320px]
+              px-5 py-4
+              rounded-2xl
+              shadow-2xl
+              flex items-center gap-3
+              text-white
+              z-50
+              bg-blue-500
+            "
+          >
+            <FaCheckCircle className="text-xl" />
 
-      {/*  Alert */}
-      {message && (
-        <div className="fixed bottom-6 right-6 bg-white border border-blue-200 text-blue-700 px-5 py-3 rounded-xl shadow-lg flex items-center gap-2 animate-fade-in">
-          <span className="text-blue-500 text-lg">✔</span>
-          <span>{message}</span>
-        </div>
-      )}
+            <span className="font-medium">
+              {message}
+            </span>
+          </div>
+        )}
+     
+     
 
     </div>
     </>

@@ -28,11 +28,13 @@ export default function Login() {
         setSubmitStatus("success");
         setSubmitMessage("Login successful! Welcome back 🎉");
         console.log("TOKEN:", localStorage.getItem("token"));
-        localStorage.setItem("token", response.data.data);
-        localStorage.setItem("role", response.data.role);
-          setUserData(response.data.data);
-          setUserRole(response.data.role);
+       localStorage.setItem("token", response.data.data);
+       localStorage.setItem("role", response.data.role);
 
+        
+          setUserRole(response.data.role);
+          
+        
 
 
       //  روحى على الداشبورد
@@ -65,6 +67,11 @@ export default function Login() {
         setSubmitStatus("network");
         setSubmitMessage("Network error. Please check your internet connection.");
       }
+    
+  console.log("FULL ERROR:", error);
+  console.log("REQUEST:", error.request);
+  console.log("RESPONSE:", error.response);
+
     }
   }
 

@@ -33,6 +33,7 @@ const AdminDashboard = lazy(() => import('./Components/Admin/Dashboard/AdminDash
 const AdminProfile = lazy(() => import('./Components/Admin/Profile/AdminProfile'));
 const Doctors = lazy(() => import('./Components/Admin/Doctors/Doctors'));
 const Patients = lazy(() => import('./Components/Admin/Patients/Patients'));
+const PatientDetailsAdmin = lazy(() =>import('./Components/Admin/Patients/PatientDetails'));
 
 import UserContextProvider from './Context/UserContext';
 
@@ -69,6 +70,8 @@ const router = createBrowserRouter([
   { path: "profile-admin", element: <AdminProfile /> },
   { path: "modify-doctors", element: <Doctors /> },
   { path: "modify-patients", element: <Patients /> },
+  { path: "admin/patient/:id", element: <PatientDetailsAdmin /> },
+
   { path: "*", element: <Notfound /> }
 ]);
 

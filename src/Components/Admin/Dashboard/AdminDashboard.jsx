@@ -1,9 +1,6 @@
-import React from 'react'
-import NavRole from '../../NavRole/NavRole'
-
-import { useEffect, useState } from "react";
+import React, { useEffect, useState } from "react";
+import NavRole from "../../NavRole/NavRole";
 import axios from "axios";
-
 
 import {
   ResponsiveContainer,
@@ -38,7 +35,7 @@ export default function AdminDashboard() {
 
       setDashboard(res.data.data);
     } catch (err) {
-      console.log(err);
+      console.log("Dashboard error:", err);
     } finally {
       setLoading(false);
     }
@@ -48,40 +45,18 @@ export default function AdminDashboard() {
     fetchDashboard();
   }, []);
 
-  const monthNames = [
-    "Jan",
-    "Feb",
-    "Mar",
-    "Apr",
-    "May",
-    "Jun",
-    "Jul",
-    "Aug",
-    "Sep",
-    "Oct",
-    "Nov",
-    "Dec",
-  ];
+  // تجهيز بيانات الشارتات بشكل آمن
+  const monthlyData = (dashboard?.monthlyActivity ?? []).map((item) => ({
+    month: item.month,
+    count: item.count,
+  }));
 
-  const monthlyData =
-    dashboard?.monthlyActivity?.map((item) => ({
-      month: monthNames[item._id - 1],
-      count: item.count,
-    })) || [];
+  const tumorData = (dashboard?.tumorTypes ?? []).map((item) => ({
+    name: item.tumorName,
+    value: item.count,
+  }));
 
-  const tumorData =
-    dashboard?.tumorTypes?.map((item) => ({
-      name: item.tumorName,
-      value: item.count,
-    })) || [];
-
-  const COLORS = [
-    "#3B82F6",
-    "#8B5CF6",
-    "#10B981",
-    "#F97316",
-    "#EF4444",
-  ];
+  const COLORS = ["#3B82F6", "#8B5CF6", "#10B981", "#F97316", "#EF4444"];
 
   if (loading) {
     return (
@@ -105,7 +80,6 @@ export default function AdminDashboard() {
           <h2 className="text-3xl font-bold text-gray-800">
             Dashboard
           </h2>
-
           <p className="text-gray-500 mt-2">
             Overview of the entire Brain AI system.
           </p>
@@ -114,25 +88,10 @@ export default function AdminDashboard() {
         {/* Cards */}
         <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-5 mb-8">
 
-          <Card
-            title="Total Doctors"
-            value={dashboard?.totalDoctors || 0}
-          />
-
-          <Card
-            title="Total Patients"
-            value={dashboard?.totalPatients || 0}
-          />
-
-          <Card
-            title="Scans Analyzed"
-            value={dashboard?.scansAnalyzed || 0}
-          />
-
-          <Card
-            title="AI Accuracy Avg"
-            value={dashboard?.aiAccuracyAvg || "0%"}
-          />
+          <Card title="Total Doctors" value={dashboard?.totalDoctors ?? 0} />
+          <Card title="Total Patients" value={dashboard?.totalPatients ?? 0} />
+          <Card title="Scans Analyzed" value={dashboard?.scansAnalyzed ?? 0} />
+          <Card title="AI Accuracy Avg" value={dashboard?.aiAccuracyAvg ?? "0%"} />
 
         </div>
 
@@ -141,60 +100,54 @@ export default function AdminDashboard() {
 
           {/* Line Chart */}
           <div className="bg-white rounded-2xl p-5 shadow-sm">
+            <h3 className="font-semibold mb-5">Monthly Activity</h3>
 
-            <h3 className="font-semibold mb-5">
-              Monthly Activity
-            </h3>
+            <div style={{ width: "100%", height: 320 }}>
+              <ResponsiveContainer>
+                <LineChart data={monthlyData}>
+                  <CartesianGrid strokeDasharray="3 3" />
+                  <XAxis dataKey="month" />
+                  <YAxis />
+                  <Tooltip />
 
-            <ResponsiveContainer width="100%" height={320}>
-              <LineChart data={monthlyData}>
-                <CartesianGrid strokeDasharray="3 3" />
-                <XAxis dataKey="month" />
-                <YAxis />
-                <Tooltip />
-
-                <Line
-                  type="monotone"
-                  dataKey="count"
-                  stroke="#3B82F6"
-                  strokeWidth={3}
-                />
-              </LineChart>
-            </ResponsiveContainer>
-
+                  <Line
+                    type="monotone"
+                    dataKey="count"
+                    stroke="#3B82F6"
+                    strokeWidth={3}
+                  />
+                </LineChart>
+              </ResponsiveContainer>
+            </div>
           </div>
 
           {/* Pie Chart */}
           <div className="bg-white rounded-2xl p-5 shadow-sm">
+            <h3 className="font-semibold mb-5">Tumor Distribution</h3>
 
-            <h3 className="font-semibold mb-5">
-              Tumor Distribution
-            </h3>
+            <div style={{ width: "100%", height: 320 }}>
+              <ResponsiveContainer>
+                <PieChart>
+                  <Pie
+                    data={tumorData}
+                    dataKey="value"
+                    nameKey="name"
+                    outerRadius={100}
+                    label
+                  >
+                    {tumorData.map((_, index) => (
+                      <Cell
+                        key={index}
+                        fill={COLORS[index % COLORS.length]}
+                      />
+                    ))}
+                  </Pie>
 
-            <ResponsiveContainer width="100%" height={320}>
-              <PieChart>
-
-                <Pie
-                  data={tumorData}
-                  dataKey="value"
-                  nameKey="name"
-                  outerRadius={100}
-                  label
-                >
-                  {tumorData.map((entry, index) => (
-                    <Cell
-                      key={index}
-                      fill={COLORS[index % COLORS.length]}
-                    />
-                  ))}
-                </Pie>
-
-                <Tooltip />
-                <Legend />
-
-              </PieChart>
-            </ResponsiveContainer>
-
+                  <Tooltip />
+                  <Legend />
+                </PieChart>
+              </ResponsiveContainer>
+            </div>
           </div>
 
         </div>
@@ -203,18 +156,12 @@ export default function AdminDashboard() {
   );
 }
 
+/* ===== Card Component ===== */
 function Card({ title, value }) {
   return (
     <div className="bg-white rounded-2xl shadow-sm p-6">
-
-      <p className="text-gray-500 text-sm mb-2">
-        {title}
-      </p>
-
-      <h3 className="text-3xl font-bold text-blue-500">
-        {value}
-      </h3>
-
+      <p className="text-gray-500 text-sm mb-2">{title}</p>
+      <h3 className="text-3xl font-bold text-blue-500">{value}</h3>
     </div>
   );
 }

@@ -20,8 +20,8 @@ export default function ProfileDoctor() {
   const BASE_URL =
     "https://mri-production-7e28.up.railway.app";
 
-  const defaultImage =
-    "https://cdn-icons-png.flaticon.com/512/149/149071.png";
+  
+    const defaultImage = "https://cdn-icons-png.flaticon.com/512/6997/6997662.png";
 
   const token = localStorage.getItem("token");
 
@@ -90,8 +90,7 @@ export default function ProfileDoctor() {
           specialization:
             data.specialization || "",
           workplace: data.workplace || "",
-          profileImage:
-            data.profileImage || ""
+          profileImage: data.profileImage? `${BASE_URL}/${data.profileImage}`: ""
         });
 
       } catch (err) {
@@ -137,8 +136,7 @@ export default function ProfileDoctor() {
 
       console.log(res.data);
 
-      const imageUrl =
-        res.data.data.profileImage;
+      const imageUrl = `${BASE_URL}/${res.data.data.profileImage}`;
 
       setProfile((prev) => ({
         ...prev,
@@ -472,7 +470,7 @@ export default function ProfileDoctor() {
         {alert.show && (
 
           <div
-            className={`fixed top-5 right-5 px-5 py-4 rounded-xl shadow-2xl flex items-center gap-3 text-white z-50 transition-all duration-300
+            className={`fixed bottom-5 right-5 px-5 py-4 rounded-xl shadow-2xl flex items-center gap-3 text-white z-50 transition-all duration-300
 
             ${
               alert.type === "success"

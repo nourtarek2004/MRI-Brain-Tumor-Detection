@@ -7,6 +7,8 @@ import {
   FaChartBar,
   FaDownload,
   FaTrash,
+  FaCheckCircle,
+  FaExclamationCircle 
 } from "react-icons/fa";
 
 import api from "../../../api/api";
@@ -15,7 +17,8 @@ import logo from "../../../assets/logo.png";
 
 export default function PatientDashboard() {
   const location = useLocation();
-
+  const [message, setMessage] = useState("");
+  const [isError, setIsError] = useState(false);
   const [summary, setSummary] = useState(null);
   const [reports, setReports] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -56,69 +59,82 @@ export default function PatientDashboard() {
 
     return `${(value * 100).toFixed(1)}%`;
   };
+  const filteredReports = reports.filter((r) => {
+  if (r.confidenceScore === null || r.confidenceScore === undefined) {
+    return false;
+  }
+
+  const confidence = r.confidenceScore > 1 ? r.confidenceScore : r.confidenceScore * 100;
+
+  return confidence > 50;
+});
 
   // ================= DOWNLOAD REPORT =================
-  const handleDownloadReport = async (id) => {
-    try {
-      const token = localStorage.getItem("token");
+    const handleDownloadReport = async (id) => {
+  try {
+    setIsError(false);
 
-      const response = await fetch(
-        `https://mri-production-7e28.up.railway.app/api/patient/reports/${id}/download`,
-        {
-          method: "GET",
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        }
-      );
+    const token = localStorage.getItem("token");
 
-      if (!response.ok) {
-        throw new Error("Download failed");
+    const response = await fetch(
+      `https://mri-production-7e28.up.railway.app/api/patient/reports/${id}/download`,
+      {
+        method: "GET",
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
       }
+    );
 
-      const blob = await response.blob();
+    if (!response.ok) throw new Error("Download failed");
 
-      const url = window.URL.createObjectURL(blob);
+    const blob = await response.blob();
+    const url = window.URL.createObjectURL(blob);
 
-      const link = document.createElement("a");
+    const link = document.createElement("a");
+    link.href = url;
+    link.download = `report-${id}.png`;
 
-      link.href = url;
-      link.download = `report-${id}.png`;
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
 
-      document.body.appendChild(link);
+    window.URL.revokeObjectURL(url);
 
-      link.click();
+    setMessage("Report downloaded successfully");
+    setTimeout(() => setMessage(""), 3000);
 
-      document.body.removeChild(link);
-
-      window.URL.revokeObjectURL(url);
-    } catch (error) {
-      console.log("DOWNLOAD ERROR =>", error);
-    }
-  };
+  } catch (error) {
+    setIsError(true);
+    setMessage("Download failed ");
+    setTimeout(() => setMessage(""), 3000);
+  }
+};
 
   // ================= DELETE REPORT =================
   const handleDeleteReport = async (id) => {
-    const confirmDelete = window.confirm(
-      "Delete this report?"
+  try {
+    setDeletingId(id);
+    setIsError(false);
+
+    await api.delete(`/api/patient/reports/${id}`);
+
+    setReports((prev) =>
+      prev.filter((report) => String(report.id) !== String(id))
     );
 
-    if (!confirmDelete) return;
+    setMessage("Report deleted successfully");
+    setTimeout(() => setMessage(""), 3000);
 
-    try {
-      setDeletingId(id);
+  } catch (error) {
+    setIsError(true);
+    setMessage("Delete failed ");
+    setTimeout(() => setMessage(""), 3000);
 
-      await api.delete(`/api/patient/reports/${id}`);
-
-      setReports((prev) =>
-        prev.filter((report) => report.id !== id)
-      );
-    } catch (error) {
-      console.log("DELETE ERROR =>", error);
-    } finally {
-      setDeletingId(null);
-    }
-  };
+  } finally {
+    setDeletingId(null);
+  }
+};
 
   const linkClass = (path) =>
     `flex items-center gap-2 p-2 rounded-lg transition ${
@@ -290,7 +306,7 @@ export default function PatientDashboard() {
                   </thead>
 
                   <tbody>
-                    {reports.map((r) => (
+                    {filteredReports.map((r) =>  (
                       <tr
                         key={r.id}
                         className="border-t hover:bg-blue-50"
@@ -354,7 +370,7 @@ export default function PatientDashboard() {
               {/* MOBILE CARDS */}
               <div className="md:hidden p-4 space-y-3">
 
-                {reports.map((r) => (
+                {filteredReports.map((r) =>  (
                   <div
                     key={r.id}
                     className="border rounded-xl p-4 bg-white shadow-sm"
@@ -416,6 +432,23 @@ export default function PatientDashboard() {
         </div>
 
       </div>
+      {message && (
+          <div className={`
+              fixed bottom-6 right-6
+              min-w-[320px] px-5 py-4 rounded-2xl shadow-2xl
+              flex items-center gap-3 text-white z-50
+              ${isError ? "bg-red-500" : "bg-blue-500"}
+            `}
+          >
+            {isError ? (
+              <FaExclamationCircle className="text-xl" />
+            ) : (
+              <FaCheckCircle className="text-xl" />
+            )}
+
+            <span className="font-medium">{message}</span>
+          </div>
+   )}
     </div>
   );
 }

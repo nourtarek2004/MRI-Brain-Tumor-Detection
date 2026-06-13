@@ -70,6 +70,18 @@ setReports(data.slice(0, 5));
 
   return `${(value * 100).toFixed(1)}%`;
 };
+const filteredReports = reports.filter((r) => {
+  if (r.confidenceScore === null || r.confidenceScore === undefined) {
+    return false;
+  }
+
+  const confidence =
+    r.confidenceScore > 1
+      ? r.confidenceScore
+      : r.confidenceScore * 100;
+
+  return confidence > 50;
+});
 
   // ================= DOWNLOAD REPORT =================
   const handleDownloadReport = async (id) => {
@@ -320,7 +332,7 @@ setReports(data.slice(0, 5));
                     </td>
                   </tr>
                 ) : (
-                  reports.map((r) => (
+                  filteredReports.map((r) => (
                     <tr key={r.id} className="border-b hover:bg-gray-50 transition">
 
                       <td className="p-4 font-medium text-gray-700 whitespace-nowrap">

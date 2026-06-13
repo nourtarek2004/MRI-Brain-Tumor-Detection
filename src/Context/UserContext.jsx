@@ -1,16 +1,19 @@
-
 import { createContext, useState } from "react";
 
 export let UserContext = createContext();
 
 export default function UserContextProvider({ children }) {
-  let [userData, setUserData] = useState(null);
-  let [userRole, setUserRole] = useState(null);
- 
 
+  const [userRole, setUserRole] = useState(() => {
+    return localStorage.getItem("role") || null;
+  });
+
+  const [token, setToken] = useState(() => {
+    return localStorage.getItem("token") || null;
+  });
 
   return (
-    <UserContext.Provider value={{ userData, setUserData, userRole, setUserRole }}>
+    <UserContext.Provider value={{ userRole, setUserRole, token, setToken }}>
       {children}
     </UserContext.Provider>
   );

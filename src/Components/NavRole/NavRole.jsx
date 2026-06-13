@@ -1,20 +1,73 @@
-import { useState, useContext, useMemo } from "react";
+import { useState, useContext, useMemo,useEffect } from "react";
 import { Link, useLocation } from "react-router-dom";
 import { FaBars, FaUserCircle } from "react-icons/fa";
 import logo from "../../assets/logo.png";
 import { UserContext } from "../../Context/UserContext";
+import axios from "axios";
 
 export default function NavRole() {
   const [open, setOpen] = useState(false);
   const [userMenu, setUserMenu] = useState(false);
+  const [profile, setProfile] = useState(null);
 
   const location = useLocation();
   const { userData, userRole } = useContext(UserContext);
   const handleLogout = () => {
   localStorage.removeItem("token");
-  localStorage.removeItem("doctorImage"); // لو مستخدماه
+  localStorage.removeItem("role"); // لو مستخدماه
   window.location.href = "/login";
 };
+useEffect(() => {
+  const token = localStorage.getItem("token");
+
+  async function fetchProfile() {
+    try {
+      if (userRole === "Patient") {
+        const res = await axios.get(
+          "https://mri-production-7e28.up.railway.app/api/patient/profile",
+          { headers: { Authorization: `Bearer ${token}` } }
+        );
+
+        setProfile({
+          username: res.data.data.username,
+          image: res.data.data.image,
+        });
+      }
+
+      else if (userRole === "Doctor") {
+        const res = await axios.get(
+          "https://mri-production-7e28.up.railway.app/api/doctor/profile",
+          { headers: { Authorization: `Bearer ${token}` } }
+        );
+
+        setProfile({
+          username: res.data.data.name,
+          image: `https://mri-production-7e28.up.railway.app/${res.data.data.profileImage}`,
+        });
+      }
+
+      else if (userRole === "Admin") {
+        setProfile({
+          username: "Admin",
+          image: "https://cdn-icons-png.flaticon.com/512/3135/3135715.png",
+        });
+      }
+    } catch (err) {
+      console.log(err);
+    }
+  }
+
+  if (userRole) fetchProfile();
+}, [userRole]);
+
+ if (userRole === null) {
+  return (
+    <div className="h-16 bg-white shadow flex items-center px-4 text-gray-400">
+      Loading...
+    </div>
+  );
+}
+   
 
   // تحديد الروابط حسب الـ role
   const routes = useMemo(() => {
@@ -40,6 +93,8 @@ export default function NavRole() {
         ],
       };
     }
+  
+   
 
     // Patient
     return {
@@ -117,9 +172,16 @@ export default function NavRole() {
               onClick={() => setUserMenu(!userMenu)}
               className="flex items-center gap-2 cursor-pointer"
             >
-              <FaUserCircle className="text-2xl text-gray-500" />
+              {profile?.image ? (
+                      <img
+                        src={profile.image}
+                        className="w-8 h-8 rounded-full object-cover"
+                      />
+                    ) : (
+                      <FaUserCircle className="text-2xl text-gray-500" />
+                    )}
               <span className="text-sm font-medium">
-                {userData?.username || "User"}
+                {profile?.username || "User"}
               </span>
             </div>
 

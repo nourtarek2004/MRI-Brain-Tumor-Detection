@@ -1,9 +1,9 @@
 import React from 'react'
 
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useState ,useRef} from "react";
 import axios from "axios";
 import NavRole from "../../NavRole/NavRole";
-import { FaTrash, FaEnvelope, FaSearch, FaEdit, FaPlus } from "react-icons/fa";
+import {FaTrash,FaEnvelope, FaSearch,FaEdit, FaPlus, FaCheckCircle,FaTimesCircle,FaExclamationCircle  } from "react-icons/fa";
 
 export default function Doctors() {
   const token = localStorage.getItem("token");
@@ -24,10 +24,21 @@ const [doctorForm, setDoctorForm] = useState({
   specialization: "",
 });
 
-  function showAlert(type, message) {
-    setAlert({ type, message });
-    setTimeout(() => setAlert(null), 3000);
-  }
+const alertRef = useRef(false);
+
+function showAlert(type, message) {
+  if (!message) return;
+
+  if (alertRef.current) return; // يمنع التكرار
+  alertRef.current = true;
+
+  setAlert({ type, message });
+
+  setTimeout(() => {
+    setAlert(null);
+    alertRef.current = false;
+  }, 3000);
+}
 
   async function fetchDoctors() {
     try {
@@ -167,29 +178,16 @@ async function updateDoctor(e) {
   } catch (err) {
     console.log(err);
 
-    showAlert(
-      "error",
-      err.response?.data?.message || "Update failed"
-    );
+    
   }
 }
+      
 
   return (
     <>
       <NavRole />
 
       <div className="bg-[#F5F7FB] min-h-screen p-4 md:p-8">
-        {/* Alert */}
-        {alert && (
-          <div
-            className={`fixed bottom-5 right-5 z-50 px-5 py-3 rounded-xl text-white shadow-lg ${
-              alert.type === "success" ? "bg-blue-500" : "bg-red-500"
-            }`}
-          >
-            {alert.message}
-          </div>
-        )}
-
         {/* Header */}
         <div className="mt-10 mb-6">
           <h1 className="text-3xl font-bold">Manage Doctors</h1>
@@ -514,6 +512,24 @@ async function updateDoctor(e) {
     </form>
   </div>
 )}
+    {alert?.message && (
+        <div
+          className={`
+            fixed bottom-6 right-6
+            min-w-[320px] px-5 py-4 rounded-2xl shadow-2xl
+            flex items-center gap-3 text-white z-50
+            ${alert.type === "success" ? "bg-blue-600" : "bg-red-500"}
+          `}
+        >
+          {alert.type === "success" ? (
+            <FaCheckCircle className="text-xl" />
+          ) : (
+            <FaExclamationCircle className="text-xl" />
+          )}
+
+          <span className="font-medium">{alert.message}</span>
+        </div>
+      )}
       </div>
     </>
   );
