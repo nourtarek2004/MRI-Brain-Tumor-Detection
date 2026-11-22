@@ -1,4 +1,4 @@
-import loginImg from "../../assets/login.png"; 
+import loginImg from "../../assets/Login.png";
 import { FaEnvelope, FaLock, FaEye, FaEyeSlash, FaCheckCircle, FaTimesCircle } from "react-icons/fa";
 import { useContext, useState } from "react";
 import { useFormik } from "formik";
